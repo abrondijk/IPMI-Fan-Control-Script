@@ -1,5 +1,4 @@
 import os
-import sensors
 
 # Configurable temperature and fan speed steps
 tempSteps = [30, 40, 50, 60, 70]  # [°C]
@@ -29,19 +28,25 @@ def get_fanspeed(temperature):
     return fanspeed
 
 
+def get_average_coretemp():
+    stream = os.popen('sysctl -a | grep temperature')
+    output = stream.read()
+
+    lines = output.split('\n')
+
+    temperatures = []
+    for n in range(1, 8):
+        # Parse the output per line, split on space and remove final character to only get the temperature, also cast to float
+        temperatures.append(float(lines[n].split(' ')[1][:-1]))
+
+    averageTemp = sum(temperatures) / len(temperatures)
+
+    return averageTemp
+
+
 def main():
 
-    sensors.init()
-    try:
-        for chip in sensors.iter_detected_chips():
-            # We only care about the coretemp
-            if str(chip).startswith("coretemp-"):
-                for feature in chip:
-                    # We only care about the package temperature
-                    if str(feature.label).startswith("Package id"):
-                        os.system("%s 0x%X" % (ipmi_command, int(get_fanspeed(feature.get_value()))))
-    finally:
-        sensors.cleanup()
+    os.system("%s 0x%X" % (ipmi_command, int(get_fanspeed(get_average_coretemp()))))
 
 
 if __name__ == '__main__':
