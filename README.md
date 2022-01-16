@@ -19,3 +19,10 @@ Needs the ipmitool package installed, as well as the PySensors package.
 * * * * * ( sleep 50 ; /usr/bin/python3 /path/to/script/fan_control.py >/dev/null 2>&1 )
 * * * * * ( sleep 55 ; /usr/bin/python3 /path/to/script/fan_control.py >/dev/null 2>&1 )
 ```
+or
+```bash
+# Run this on startup to enable manual fan control
+@reboot /usr/bin/ipmitool raw 0x30 0x30 0x01 0x00
+
+@reboot /usr/bin/python3 /path/to/script/fan_control_loop.py >/dev/null 2>&1
+```
