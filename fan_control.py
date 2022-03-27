@@ -6,6 +6,7 @@ import sensors
 tempSteps = [30, 40, 50, 60, 70]  # [°C]
 speedSteps = [20, 30, 50, 80, 100]  # [%]
 
+ipmi_command = "ipmitool raw 0x30 0x30 0x02 0xff"
 
 def get_fanspeed(temperature):
     fanspeed = speedSteps[len(speedSteps) - 1]
