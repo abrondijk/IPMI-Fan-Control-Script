@@ -29,9 +29,9 @@ def get_fanspeed(temperature):
 
 
 def main():
-    while True:
+    try:
         sensors.init()
-        try:
+        while True:
             for chip in sensors.iter_detected_chips():
                 # We only care about the coretemp
                 if str(chip).startswith("coretemp-"):
@@ -39,9 +39,10 @@ def main():
                         # We only care about the package temperature
                         if str(feature.label).startswith("Package id"):
                             os.system("%s 0x%X" % (ipmi_command, int(get_fanspeed(feature.get_value()))))
-        finally:
-            sensors.cleanup()
             time.sleep(5)
+    finally:
+        sensors.cleanup()
+
 
 
 if __name__ == '__main__':
