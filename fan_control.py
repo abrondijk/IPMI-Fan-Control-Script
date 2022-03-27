@@ -1,11 +1,10 @@
 import os
+import time
 import sensors
 
 # Configurable temperature and fan speed steps
 tempSteps = [30, 40, 50, 60, 70]  # [°C]
 speedSteps = [20, 30, 50, 80, 100]  # [%]
-
-ipmi_command = "ipmitool raw 0x30 0x30 0x02 0xff"
 
 
 def get_fanspeed(temperature):
@@ -30,18 +29,19 @@ def get_fanspeed(temperature):
 
 
 def main():
-
-    sensors.init()
-    try:
-        for chip in sensors.iter_detected_chips():
-            # We only care about the coretemp
-            if str(chip).startswith("coretemp-"):
-                for feature in chip:
-                    # We only care about the package temperature
-                    if str(feature.label).startswith("Package id"):
-                        os.system("%s 0x%X" % (ipmi_command, int(get_fanspeed(feature.get_value()))))
-    finally:
-        sensors.cleanup()
+    while True:
+        sensors.init()
+        try:
+            for chip in sensors.iter_detected_chips():
+                # We only care about the coretemp
+                if str(chip).startswith("coretemp-"):
+                    for feature in chip:
+                        # We only care about the package temperature
+                        if str(feature.label).startswith("Package id"):
+                            os.system("%s 0x%X" % (ipmi_command, int(get_fanspeed(feature.get_value()))))
+        finally:
+            sensors.cleanup()
+            time.sleep(5)
 
 
 if __name__ == '__main__':
